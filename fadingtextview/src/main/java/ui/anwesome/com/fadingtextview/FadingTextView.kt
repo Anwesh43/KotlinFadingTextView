@@ -3,6 +3,7 @@ package ui.anwesome.com.fadingtextview
 /**
  * Created by anweshmishra on 19/12/17.
  */
+import android.app.Activity
 import android.view.*
 import android.graphics.*
 import android.content.*
@@ -11,6 +12,9 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
     val renderer = FadingTextRenderer(this)
     override fun onDraw(canvas:Canvas) {
         renderer.render(canvas,paint)
+    }
+    fun addToParent(activity: Activity) {
+        activity.addContentView(this, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,200))
     }
     fun setText1(text1:String) {
         this.text = text1
@@ -130,6 +134,12 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
         }
         fun handleTap(x:Float,y:Float) {
             animator?.startUpdating(x,y)
+        }
+    }
+    companion object {
+        fun create(activity:Activity):FadingTextView {
+            val view = FadingTextView(activity)
+            return view
         }
     }
 }
