@@ -19,4 +19,18 @@ class FadingTextView(ctx:Context):View(ctx) {
         }
         return true
     }
+    data class FadingText(var x:Float,var y:Float,var h:Float,var text:String) {
+        fun draw(canvas:Canvas,paint:Paint,scale:Float) {
+            paint.textSize = h/2
+            paint.color = Color.BLACK
+            val path = Path()
+            val rw = paint.measureText(text)*12/10
+            path.addRect(RectF(x+rw*scale,y,x+rw,y+h),Path.Direction.CW)
+            canvas.save()
+            canvas.clipPath(path)
+            canvas.drawText(text,x+paint.measureText(text)/10,y,paint)
+            canvas.restore()
+        }
+    }
+    
 }
