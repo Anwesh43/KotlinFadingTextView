@@ -30,11 +30,11 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
     data class FadingText(var x:Float,var y:Float,var h:Float,var text:String) {
         fun draw(canvas:Canvas,paint:Paint,scale:Float) {
             paint.textSize = h/2
-            paint.color = Color.BLACK
+            paint.color = Color.WHITE
+            canvas.save()
             val path = Path()
             val rw = paint.measureText(text)*12/10
-            path.addRect(RectF(x+rw*scale,y,x+rw,y+h),Path.Direction.CW)
-            canvas.save()
+            path.addRect(RectF(x+rw*scale,y-h/2,x+rw,y+h/2),Path.Direction.CW)
             canvas.clipPath(path)
             canvas.drawText(text,x+paint.measureText(text)/10,y,paint)
             canvas.restore()
@@ -49,8 +49,7 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
                 canvas.save()
                 canvas.translate(x,y)
                 canvas.rotate(i*90f*scale)
-
-                canvas.drawLine(0f,-r,0f,r,paint)
+                canvas.drawLine(r,0f,-r,0f,paint)
                 canvas.restore()
             }
         }
@@ -70,8 +69,9 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
             state.update(stopcb)
         }
         fun startUpdating(x:Float,y:Float,startcb:()->Unit) {
-            if(plusButton.handleTap(x,y))
-            state.startUpdating(startcb)
+            if(plusButton.handleTap(x,y)) {
+                state.startUpdating(startcb)
+            }
         }
     }
     data class State(var scale:Float = 0f,var dir:Float = 0f,var prevScale:Float = 0f) {
@@ -95,10 +95,10 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
     data class FadingTextAnimator(var container:FadingTextContainer,var view:FadingTextView) {
         var animated = false
         fun update() {
-            container.update{
-                animated = false
-            }
             if(animated) {
+                container.update{
+                    animated = false
+                }
                 try {
                     Thread.sleep(50)
                     view.invalidate()
@@ -130,6 +130,7 @@ class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
             }
             canvas.drawColor(Color.parseColor("#212121"))
             animator?.draw(canvas,paint)
+            animator?.update()
             time++
         }
         fun handleTap(x:Float,y:Float) {
