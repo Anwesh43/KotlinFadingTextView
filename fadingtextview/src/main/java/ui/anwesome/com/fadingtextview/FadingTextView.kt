@@ -51,15 +51,18 @@ class FadingTextView(ctx:Context):View(ctx) {
     data class FadingTextContainer(var text:String,var w:Float,var h:Float) {
         var plusButton = PlusButton(w/10,h/2,h/3)
         var fadingText = FadingText(w/10+h/3,h/2,h,text)
+        val state = State()
         fun draw(canvas: Canvas,paint:Paint) {
-            plusButton.draw(canvas,paint,1f)
-            fadingText.draw(canvas,paint,1f)
+            state.executeFn { scale ->
+                plusButton.draw(canvas,paint,scale)
+                fadingText.draw(canvas,paint,scale)
+            }
         }
         fun update(stopcb:(Float)->Unit) {
-
+            state.update(stopcb)
         }
         fun startUpdating(startcb:()->Unit) {
-
+            state.startUpdating(startcb)
         }
     }
     data class State(var scale:Float = 0f,var dir:Float = 0f,var prevScale:Float = 0f) {
@@ -78,6 +81,34 @@ class FadingTextView(ctx:Context):View(ctx) {
         }
         fun executeFn(cb:(Float)->Unit) {
             cb(scale)
+        }
+    }
+    data class FadingTextAnimator(var container:FadingTextContainer,var view:FadingTextView) {
+        var animated = false
+        fun update() {
+            container.update{
+                animated = false
+            }
+            if(animated) {
+                try {
+                    Thread.sleep(50)
+                    view.invalidate()
+                }
+                catch (ex:Exception) {
+
+                }
+            }
+        }
+        fun draw(canvas: Canvas,paint:Paint) {
+            container.draw(canvas,paint)
+        }
+        fun startUpdating() {
+            if(!animated) {
+                container.startUpdating {
+                    animated = true
+                    view.postInvalidate()
+                }
+            }
         }
     }
 }
