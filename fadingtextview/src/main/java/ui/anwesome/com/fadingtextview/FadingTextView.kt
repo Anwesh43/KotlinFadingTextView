@@ -62,4 +62,22 @@ class FadingTextView(ctx:Context):View(ctx) {
 
         }
     }
+    data class State(var scale:Float = 0f,var dir:Float = 0f,var prevScale:Float = 0f) {
+        fun update(stopcb:(Float)->Unit) {
+            scale += 0.1f*dir
+            if(Math.abs(scale-prevScale)>1) {
+                scale = prevScale+dir
+                dir = 0f
+                prevScale = scale
+                stopcb(scale)
+            }
+        }
+        fun startUpdating(startcb:()->Unit) {
+            dir = 1f-2*scale
+            startcb()
+        }
+        fun executeFn(cb:(Float)->Unit) {
+            cb(scale)
+        }
+    }
 }
