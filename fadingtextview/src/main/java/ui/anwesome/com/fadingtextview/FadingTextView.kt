@@ -6,15 +6,19 @@ package ui.anwesome.com.fadingtextview
 import android.view.*
 import android.graphics.*
 import android.content.*
-class FadingTextView(ctx:Context):View(ctx) {
+class FadingTextView(ctx:Context,var text:String="hello"):View(ctx) {
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    val renderer = FadingTextRenderer(this)
     override fun onDraw(canvas:Canvas) {
-
+        renderer.render(canvas,paint)
+    }
+    fun setText1(text1:String) {
+        this.text = text1
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
         when(event.action) {
             MotionEvent.ACTION_DOWN -> {
-
+                renderer.handleTap(event.x,event.y)
             }
         }
         return true
@@ -61,7 +65,8 @@ class FadingTextView(ctx:Context):View(ctx) {
         fun update(stopcb:(Float)->Unit) {
             state.update(stopcb)
         }
-        fun startUpdating(startcb:()->Unit) {
+        fun startUpdating(x:Float,y:Float,startcb:()->Unit) {
+            if(plusButton.handleTap(x,y))
             state.startUpdating(startcb)
         }
     }
@@ -102,13 +107,29 @@ class FadingTextView(ctx:Context):View(ctx) {
         fun draw(canvas: Canvas,paint:Paint) {
             container.draw(canvas,paint)
         }
-        fun startUpdating() {
+        fun startUpdating(x:Float,y:Float) {
             if(!animated) {
-                container.startUpdating {
+                container.startUpdating (x,y,{
                     animated = true
                     view.postInvalidate()
-                }
+                })
             }
+        }
+    }
+    data class FadingTextRenderer(var view:FadingTextView,var time:Int = 0) {
+        var animator:FadingTextAnimator?=null
+        fun render(canvas:Canvas,paint:Paint) {
+            if(time == 0) {
+                val w = canvas.width.toFloat()
+                val h = canvas.height.toFloat()
+                animator = FadingTextAnimator(FadingTextContainer(view.text,w,h),view)
+            }
+            canvas.drawColor(Color.parseColor("#212121"))
+            animator?.draw(canvas,paint)
+            time++
+        }
+        fun handleTap(x:Float,y:Float) {
+            animator?.startUpdating(x,y)
         }
     }
 }
