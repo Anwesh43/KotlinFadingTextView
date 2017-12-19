@@ -48,4 +48,18 @@ class FadingTextView(ctx:Context):View(ctx) {
         }
         fun handleTap(x:Float,y:Float):Boolean = x>=this.x-r && x<=this.x+r && y>=this.y-r && y<=this.y+r
     }
+    data class FadingTextContainer(var text:String,var w:Float,var h:Float) {
+        var plusButton = PlusButton(w/10,h/2,h/3)
+        var fadingText = FadingText(w/10+h/3,h/2,h,text)
+        fun draw(canvas: Canvas,paint:Paint) {
+            plusButton.draw(canvas,paint,1f)
+            fadingText.draw(canvas,paint,1f)
+        }
+        fun update(stopcb:(Float)->Unit) {
+
+        }
+        fun startUpdating(startcb:()->Unit) {
+
+        }
+    }
 }
